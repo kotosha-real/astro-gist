@@ -1,0 +1,33 @@
+{
+    "name": "@kotosha/astro-gist",
+    "version": "0.1.0",
+    "description": "Dead simple gist rendering buddy for your Astro blog",
+    "main": "index.js",
+    "scripts": {
+        "format": "prettier --write ."
+    },
+    "type": "module",
+    "keywords": [
+        "astro-component",
+        "astro",
+        "gist"
+    ],
+    "author": {
+        "email": "kotosharules@gmail.com",
+        "name": "Anton Subbotin",
+        "url": "https://kotosha.com"
+    },
+    "files": [
+        "LICENSE",
+        "package.json",
+        "README.md",
+        "src/Gist.astro"
+    ],
+    "exports": [
+        "./src/Gist.astro"
+    ],
+    "license": "ISC",
+    "devDependencies": {
+        "prettier-plugin-astro": "^0.13.0"
+    }
+}
