@@ -1,6 +1,6 @@
 {
     "name": "@kotosha/astro-gist",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Dead simple gist rendering buddy for your Astro blog",
     "main": "index.js",
     "scripts": {
@@ -16,6 +16,10 @@
         "email": "kotosharules@gmail.com",
         "name": "Anton Subbotin",
         "url": "https://kotosha.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kotosha-real/astro-gist"
     },
     "files": [
         "LICENSE",
