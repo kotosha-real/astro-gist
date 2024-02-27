@@ -1,6 +1,6 @@
 {
     "name": "@kotosha/astro-gist",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "description": "Dead simple gist rendering buddy for your Astro blog",
     "main": "index.js",
     "scripts": {
