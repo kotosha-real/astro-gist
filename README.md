@@ -108,11 +108,13 @@ It might be convenient to use a wrapper component to pass the `gistStylesUrl` pr
 
 ```typescript jsx
 // GistWrapper.astro
+---
 import Gist from '@kotosha/astro-gist'
 
-export default function GistWrapper(gistProps) {
-    return <Gist gistStylesUrl="https://your-styles-url.com" {...gistProps} />
-}
+const props = Astro.props;
+---
+
+<Gist gistStylesUrl="/gist-theme.css" {...props} />
 ```
 
 ## License
