@@ -2,7 +2,9 @@
 
 [![npm version](https://badge.fury.io/js/@kotosha%2Fastro-gist.svg)](https://badge.fury.io/js/@kotosha%2Fastro-gist)
 
-✅ Dead simple yet powerful gist rendering buddy for your Astro blog.
+Dead simple yet powerful gist rendering buddy for your Astro blog.
+
+Why Astro Gist?
 
 ✅ Uses the standard gist embed script to render the gist and wraps it in an iframe to avoid blocking the main thread
 
