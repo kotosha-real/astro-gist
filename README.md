@@ -1,12 +1,10 @@
 # Astro Gist
 
-[![npm version](https://badge.fury.io/js/@kotosha%2Fastro-gist.svg)](https://badge.fury.io/js/@kotosha%2Fastro-gist)
-
 Dead simple yet powerful gist rendering buddy for your Astro blog.
 
-Why Astro Gist?
+## Features
 
-✅ Uses the standard gist embed script to render the gist and wraps it in an iframe to avoid blocking the main thread
+✅ Uses the standard gist embed script and wraps it in an iframe to avoid blocking the main thread
 
 ✅ Lazy loads the gist using IntersectionObserver to improve performance
 
@@ -18,7 +16,7 @@ Why Astro Gist?
 
 ✅ Supports adding a caption to the gist
 
-✅ Just 4.1 kB gzipped
+✅ Less than 1 kB of client JavaScript
 
 ## Installation
 
@@ -59,16 +57,16 @@ Awesome gist here:
 
 You can also pass additional props to customize the component behavior:
 
-| Name                | Type    | Default | Description                                                                                                                                                                                       | Required |
-| ------------------- | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| id                  | string  | -       | Gist ID                                                                                                                                                                                           | ✔️       |
-| caption             | string  | -       | Caption to display below the gist. If not provided, no caption will be displayed. Caption will only be displayed if the gist is loaded successfully                                               |
-| className           | string  | -       | Additional class to add to the figure. Useful for styling                                                                                                                                         |
-| file                | string  | -       | File to display from the gist. If not provided, the whole gist will be displayed                                                                                                                  |
-| gistStylesUrl       | string  | -       | URL to the stylesheet to use for styling the gist                                                                                                                                                 |
-| lazy                | boolean | true    | Whether to lazy load the gist. Use IntersectionObserver to load the gist when it comes into view. If IntersectionObserver is not supported, the gist will be loaded immediately. Defaults to true |
-| observerRootMargin  | number  | 150     | Margin around the root of the IntersectionObserver. The more the margin, the earlier the iframe will be loaded. Defaults to 150                                                                   |
-| showGistLinkOnError | boolean | true    | Whether to show the link to the gist when the gist fails to load. Defaults to true                                                                                                                |
+| Name                | Type    | Default | Description                                                                                                                                                                     | Required |
+| ------------------- | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| id                  | string  | -       | Gist ID                                                                                                                                                                         | ✔️       |
+| caption             | string  | -       | Caption to display below the gist. If not provided, no caption will be displayed. Caption will only be displayed if the gist is loaded successfully                             |
+| className           | string  | -       | Additional class to add to the figure. Useful for styling                                                                                                                       |
+| file                | string  | -       | File to display from the gist. If not provided, the whole gist will be displayed                                                                                                |
+| gistStylesUrl       | string  | -       | URL to the stylesheet to use for styling the gist                                                                                                                               |
+| lazy                | boolean | true    | Whether to lazy load the gist. Use IntersectionObserver to load the gist when it comes into view. If IntersectionObserver is not supported, the gist will be loaded immediately |
+| observerRootMargin  | number  | 150     | Margin around the root of the IntersectionObserver. The more the margin, the earlier the iframe will be loaded                                                                  |
+| showGistLinkOnError | boolean | true    | Whether to show the link to the gist when the gist fails to load                                                                                                                |
 
 ## Customization
 

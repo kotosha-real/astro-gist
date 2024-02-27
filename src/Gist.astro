@@ -74,7 +74,13 @@ const iframeSrcDoc = `<html>
 
 <figure class={className}>
     <div>
-        <iframe frameborder={0} id={iframeId} loading="lazy" data-srcdoc={iframeSrcDoc}></iframe>
+        <iframe
+            frameborder={0}
+            id={iframeId}
+            data-astro-gist-iframe
+            data-lazy={lazy.toString()}
+            data-root-margin={observerRootMargin}
+            data-srcdoc={iframeSrcDoc}></iframe>
     </div>
     {caption && <figcaption>{caption}</figcaption>}
 </figure>
@@ -105,31 +111,33 @@ const iframeSrcDoc = `<html>
     }
 </style>
 
-<script is:inline define:vars={{ iframeId, lazy, observerRootMargin }}>
-    const iframe = document.querySelector(`#${iframeId}`)
+<script>
+    const iframes = document.querySelectorAll<HTMLIFrameElement>('[data-astro-gist-iframe]')
 
-    if (
-        lazy &&
-        'IntersectionObserver' in window &&
-        'IntersectionObserverEntry' in window &&
-        'intersectionRatio' in window.IntersectionObserverEntry.prototype
-    ) {
-        function handleIntersection(entries, observer) {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    iframe.srcdoc = iframe.dataset.srcdoc
+    iframes.forEach((iframe) => {
+        if (
+            iframe.dataset.lazy === 'true' &&
+            'IntersectionObserver' in window &&
+            'IntersectionObserverEntry' in window &&
+            'intersectionRatio' in window.IntersectionObserverEntry.prototype
+        ) {
+            function handleIntersection(entries, observer) {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        iframe.srcdoc = iframe.dataset.srcdoc
 
-                    observer.disconnect()
-                }
-            })
+                        observer.disconnect()
+                    }
+                })
+            }
+
+            const rootMargin = isNaN(Number(iframe.dataset.rootMargin)) ? '0px' : `${iframe.dataset.rootMargin}px`
+
+            const observer = new IntersectionObserver(handleIntersection, { rootMargin })
+
+            observer.observe(iframe)
+        } else {
+            iframe.srcdoc = iframe.dataset.srcdoc
         }
-
-        const rootMargin = isNaN(observerRootMargin) ? '0px' : `${observerRootMargin}px`
-
-        const observer = new IntersectionObserver(handleIntersection, { rootMargin })
-
-        observer.observe(iframe)
-    } else {
-        iframe.srcdoc = iframe.dataset.srcdoc
-    }
+    })
 </script>
