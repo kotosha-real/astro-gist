@@ -49,6 +49,17 @@ const iframeSrcDoc = `<html>
 
         if (gistLoadingStatus === 'success') {
             iframe.parentNode.style.paddingBlockEnd = document.documentElement.scrollHeight + 'px';
+
+            // Intercept link clicks within iframe to open in parent window
+            document.body.addEventListener('click', (evt) => {
+                if (evt.target.tagName === 'A') {
+                    evt.preventDefault()
+
+                    const targetHref = evt.target.getAttribute('href')
+
+                    parent.open(targetHref, '_blank')
+                }
+            });
         } else if (${showGistLinkOnError}) {
             let figcaption = iframe.parentNode.parentNode.querySelector('figcaption')
             const hasCaption = figcaption !== null
@@ -63,7 +74,6 @@ const iframeSrcDoc = `<html>
                 iframe.parentNode.parentNode.appendChild(figcaption)
             }
         }
-
 
         iframe.parentNode.parentNode.dataset.loadingStatus = gistLoadingStatus;
     })()">
