@@ -16,7 +16,9 @@ Dead simple yet powerful gist rendering buddy for your Astro blog.
 
 ✅ Supports adding a caption to the gist
 
-✅ Less than 1 kB of client JavaScript
+✅ Zero dependencies
+
+✅ Less than 1.5 kB of client JavaScript
 
 ## Installation
 
@@ -115,6 +117,31 @@ const props = Astro.props;
 ---
 
 <Gist gistStylesUrl="/gist-theme.css" {...props} />
+```
+
+Astro Gist uses the `srcdoc` iframe attribute: when the gist is ready to be rendered, it composes the appropriate `srcdoc` and passes it to the iframe. Any HTML attributes added to that iframe's `html` tag are preserved, so it's really easy to style your gists according to your app's theme:
+
+```typescript jsx
+// gist.css
+html[data-theme="light"] ... {
+    /* Light theme styles here */
+}
+html[data-theme="dark"] ... {
+    /* Dark theme styles here */
+}
+
+// Your page
+<Gist gistStylesUrl="/gist.css" {...props} />
+
+// Your theme provider
+onThemeChange = (theme) => {
+    document.querySelectorAll('[data-astro-gist-iframe]').forEach(iframe => {
+        const iframeDocument =  iframe.contentWindow?.document || iframe.contentDocument;
+
+        // Could be classes. Just anything you can work with from your CSS
+        iframeDocument.documentElement.dataset.theme = theme
+    })
+}
 ```
 
 ## License

@@ -32,54 +32,6 @@ const {
 const uniqueId = Math.random().toString(36).substring(2, 15)
 const gistLink = `https://gist.github.com/${gistId}.js${file ? `?file=${file}` : ''}`
 const iframeId = `astro-gist-${gistId}-${uniqueId}`
-const gistStylesheet = gistStylesUrl ? `<link rel=stylesheet href=${gistStylesUrl} />` : ''
-
-const iframeSrcDoc = `<html>
-    <head>
-        <style>
-            body { margin: 0; padding: 0; }
-        </style>
-        ${gistStylesheet}
-    </head>
-    <body onload="(function () {
-        // Scroll height is 0 when the gist wasn't loaded successfully
-        const gistLoadingStatus = document.documentElement.scrollHeight > 0 ? 'success' : 'error';
-
-        const iframe = parent.document.querySelector('#${iframeId}');
-
-        if (gistLoadingStatus === 'success') {
-            iframe.parentNode.style.paddingBlockEnd = document.documentElement.scrollHeight + 'px';
-
-            // Intercept link clicks within iframe to open in parent window
-            document.body.addEventListener('click', (evt) => {
-                if (evt.target.tagName === 'A') {
-                    evt.preventDefault()
-
-                    const targetHref = evt.target.getAttribute('href')
-
-                    parent.open(targetHref, '_blank')
-                }
-            });
-        } else if (${showGistLinkOnError}) {
-            let figcaption = iframe.parentNode.parentNode.querySelector('figcaption')
-            const hasCaption = figcaption !== null
-
-            if (!hasCaption) {
-                figcaption = document.createElement('figcaption')
-            }
-
-            figcaption.innerHTML = '${showGistLinkOnError ? `Unable to load the gist. <a href=${gistLink} target=_blank rel=noopener>View it on GitHub</a>` : ''}'
-
-            if (!hasCaption) {
-                iframe.parentNode.parentNode.appendChild(figcaption)
-            }
-        }
-
-        iframe.parentNode.parentNode.dataset.loadingStatus = gistLoadingStatus;
-    })()">
-        <script src="${gistLink}"></script>
-    </body>
-</html>`
 ---
 
 <figure class={className}>
@@ -88,9 +40,11 @@ const iframeSrcDoc = `<html>
             frameborder={0}
             id={iframeId}
             data-astro-gist-iframe
+            data-gist-link={gistLink}
+            data-gist-styles-url={gistStylesUrl}
             data-lazy={lazy.toString()}
             data-root-margin={observerRootMargin}
-            data-srcdoc={iframeSrcDoc}></iframe>
+            data-show-gist-link-on-error={showGistLinkOnError}></iframe>
     </div>
     {caption && <figcaption>{caption}</figcaption>}
 </figure>
@@ -122,6 +76,101 @@ const iframeSrcDoc = `<html>
 </style>
 
 <script>
+    declare global {
+        interface Window {
+            AstroGist: { onLoad(id: string): void }
+        }
+    }
+    window.AstroGist = window.AstroGist || { onLoad: () => {} }
+
+    const getIframeDocument = (iframe: HTMLIFrameElement) => iframe.contentWindow?.document || iframe.contentDocument
+
+    const onLoad = (iframeId: string): void => {
+        const iframe = document.querySelector<HTMLIFrameElement>(`#${iframeId}`)
+
+        if (!iframe) {
+            console.log(
+                '%cAstro Gist',
+                'background:linear-gradient(83.21deg,#3245ff 0%,#bc52ee 100%);border-radius:0.75em;color:rgb(242, 246, 250);padding:0.25em 0.5em',
+                `Could not find iframe with the given id ${iframeId}. Nothing will happen`
+            )
+
+            return
+        }
+
+        const iframeDocument = getIframeDocument(iframe)
+        // Scroll height is 0 when the gist wasn't loaded successfully
+        const gistLoadingStatus = iframeDocument.documentElement.scrollHeight > 0 ? 'success' : 'error'
+
+        if (gistLoadingStatus === 'success') {
+            iframe.parentElement.style.paddingBlockEnd = iframeDocument.documentElement.scrollHeight + 'px'
+
+            // Intercept link clicks within iframe to open in parent window
+            iframeDocument.body.addEventListener('click', (evt) => {
+                const eventTarget = evt.target as HTMLElement
+
+                if (eventTarget.tagName === 'A') {
+                    evt.preventDefault()
+
+                    const targetHref = eventTarget.getAttribute('href')
+
+                    parent.open(targetHref, '_blank')
+                }
+            })
+        } else if (iframe.dataset.showGistLinkOnError) {
+            let figcaption = iframe.parentElement.parentElement.querySelector('figcaption')
+            const hasCaption = figcaption !== null
+
+            if (!hasCaption) {
+                figcaption = document.createElement('figcaption')
+            }
+
+            figcaption.innerHTML = iframe.dataset.showGistLinkOnError
+                ? `Unable to load the gist. <a href="${iframe.dataset.gistLink}" target="_blank" rel="noopener">View it on GitHub</a>`
+                : ''
+
+            if (!hasCaption) {
+                iframe.parentElement.parentElement.appendChild(figcaption)
+            }
+        }
+
+        iframe.parentElement.parentElement.dataset.loadingStatus = gistLoadingStatus
+    }
+
+    window.AstroGist.onLoad = onLoad
+
+    const getIframeSrcDoc = (iframe) => {
+        const getIframeDocumentElementAttributesString = (iframe) => {
+            const iframeDocument = getIframeDocument(iframe)
+            let res = ''
+
+            for (const attr of iframeDocument.documentElement.attributes) {
+                res += `${attr.name}="${attr.value}" `
+            }
+
+            return res.trim()
+        }
+        const getGistStylesheetLinkHtmlString = (iframe) => {
+            if (!iframe.dataset.gistStylesUrl) {
+                return ''
+            }
+
+            const link = document.createElement('link')
+            link.href = iframe.dataset.gistStylesUrl
+            link.rel = 'stylesheet'
+
+            return link.outerHTML
+        }
+        const getGistScriptHtmlString = (iframe) => {
+            const script = document.createElement('script')
+            script.src = iframe.dataset.gistLink
+
+            return script.outerHTML
+        }
+
+        return `<html ${getIframeDocumentElementAttributesString(iframe)}><head><style>body { margin: 0; padding: 0; }</style>${getGistStylesheetLinkHtmlString(iframe)}</head><body onload="window.parent.AstroGist.onLoad('${iframe.id}')">${getGistScriptHtmlString(iframe)}</body></html>`
+    }
+
     const iframes = document.querySelectorAll<HTMLIFrameElement>('[data-astro-gist-iframe]')
 
     iframes.forEach((iframe) => {
@@ -134,7 +183,7 @@ const iframeSrcDoc = `<html>
             function handleIntersection(entries, observer) {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        iframe.srcdoc = iframe.dataset.srcdoc
+                        iframe.srcdoc = getIframeSrcDoc(iframe)
 
                         observer.disconnect()
                     }
@@ -147,7 +196,7 @@ const iframeSrcDoc = `<html>
 
             observer.observe(iframe)
         } else {
-            iframe.srcdoc = iframe.dataset.srcdoc
+            iframe.srcdoc = getIframeSrcDoc(iframe)
         }
     })
 </script>
